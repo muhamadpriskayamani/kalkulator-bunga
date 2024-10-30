@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Bunga & Anuitas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: linear-gradient(to right, #a8c0ff, #3f2b96);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        h2 {
+            color: #fff;
+        }
+
+        .section {
+            transition: transform 0.3s ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .section.show {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .back-button {
+            background-image: linear-gradient(to right, #3f8cff, #1f3b73);
+            color: white;
+        }
+
+        .result {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: 15px;
+            }
+
+            .table {
+                font-size: 0.85rem;
+            }
+
+            .table th, .table td {
+                padding: 0.5rem;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Kalkulator Bunga & Anuitas</h2>
+
+        <!-- Bunga Tunggal -->
+        <div class="section bg-white shadow p-4 rounded mb-4" id="bungaTunggalSection">
+            <h3 class="mb-3">Bunga Tunggal</h3>
+            <form id="bungaTunggalForm">
+                <div class="form-group">
+                    <label for="M_tunggal">Modal Awal (M):</label>
+                    <input type="text" class="form-control" id="M_tunggal" oninput="formatRupiah(this)" required>
+                </div>
+                <div class="form-group">
+                    <label for="b_tunggal">Suku Bunga (%):</label>
+                    <input type="number" class="form-control" id="b_tunggal" required>
+                </div>
+                <div class="form-group">
+                    <label for="t_tunggal">Waktu (t):</label>
+                    <input type="number" class="form-control" id="t_tunggal" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="hitungBungaTunggal()">Hitung Bunga Tunggal</button>
+            </form>
+            <div id="hasilBungaTunggal" class="result alert alert-info" style="display:none;"></div>
+        </div>
+
+        <!-- Bunga Majemuk -->
+        <div class="section bg-white shadow p-4 rounded mb-4" id="bungaMajemukSection">
+            <h3 class="mb-3">Bunga Majemuk - Mencari Modal Akhir</h3>
+            <form id="bungaMajemukFormAkhir">
+                <div class="form-group">
+                    <label for="M_majemuk_akhir">Modal Awal (M):</label>
+                    <input type="text" class="form-control" id="M_majemuk_akhir" oninput="formatRupiah(this)" required>
+                </div>
+                <div class="form-group">
+                    <label for="b_majemuk_akhir">Suku Bunga (%):</label>
+                    <input type="number" class="form-control" id="b_majemuk_akhir" required>
+                </div>
+                <div class="form-group">
+                    <label for="t_majemuk_akhir">Waktu (t):</label>
+                    <input type="number" class="form-control" id="t_majemuk_akhir" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="hitungBungaMajemukAkhir()">Hitung Modal Akhir</button>
+            </form>
+            <div id="hasilBungaMajemukAkhir" class="result alert alert-info" style="display:none;"></div>
+        </div>
+
+        <!-- Anuitas -->
+        <div class="section bg-white shadow p-4 rounded mb-4" id="anuitasSection">
+            <h3 class="mb-3">Anuitas</h3>
+            <form id="anuitasForm">
+                <div class="form-group">
+                    <label for="M_anuitas">Jumlah Pinjaman (M):</label>
+                    <input type="text" class="form-control" id="M_anuitas" oninput="formatRupiah(this)" required>
+                </div>
+                <div class="form-group">
+                    <label for="b_anuitas">Suku Bunga (%):</label>
+                    <input type="number" class="form-control" id="b_anuitas" required>
+                </div>
+                <div class="form-group">
+                    <label for="periode_anuitas">Jumlah Periode:</label>
+                    <input type="number" class="form-control" id="periode_anuitas" required>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="hitungAnuitas()">Hitung Anuitas</button>
+            </form>
+            <div class="result alert alert-info" style="display:none;" id="hasilAnuitas"></div>
+
+            <h3 class="mt-4">Hasil Perhitungan Anuitas</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered mt-3">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="min-width: 100px;">Periode Ke</th>
+                            <th style="min-width: 150px;">Pinjaman Awal (M)</th>
+                            <th style="min-width: 100px;">Bunga (B)</th>
+                            <th style="min-width: 100px;">Angsuran (A)</th>
+                            <th style="min-width: 150px;">Sisa Pinjaman (S)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAnuitas">
+                        <!-- Hasil perhitungan akan ditampilkan di sini -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <button class="btn btn-warning" onclick="refreshPage()">Reset</button>
+        <button class="btn btn-secondary back-button" onclick="window.location.href='index.html'">Kembali</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Format input ke format Rupiah
+        function formatRupiah(angka) {
+            var number_string = angka.value.replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            angka.value = rupiah;
+        }
+
+        // Hitung Bunga Tunggal
+        function hitungBungaTunggal() {
+            document.getElementById('hasilBungaTunggal').innerHTML = '';
+            document.getElementById('hasilBungaTunggal').style.display = "none";
+
+            var M = parseFloat(document.getElementById('M_tunggal').value.replace(/\./g, '').replace(/,/g, '.'));
+            var b = parseFloat(document.getElementById('b_tunggal').value);
+            var t = parseFloat(document.getElementById('t_tunggal').value);
+
+            var bunga = M * (b / 100) * t;
+            var total = M + bunga;
+
+            document.getElementById('hasilBungaTunggal').innerHTML = 
+                `<strong>Bunga:</strong> Rp ${bunga.toLocaleString('id-ID')}<br><strong>Total:</strong> Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('hasilBungaTunggal').style.display = "block";
+        }
+
+        // Hitung Bunga Majemuk
+        function hitungBungaMajemukAkhir() {
+            document.getElementById('hasilBungaMajemukAkhir').innerHTML = '';
+            document.getElementById('hasilBungaMajemukAkhir').style.display = "none";
+
+            var M = parseFloat(document.getElementById('M_majemuk_akhir').value.replace(/\./g, '').replace(/,/g, '.'));
+            var b = parseFloat(document.getElementById('b_majemuk_akhir').value) / 100;
+            var t = parseFloat(document.getElementById('t_majemuk_akhir').value);
+
+            var total = M * Math.pow(1 + b, t);
+
+            document.getElementById('hasilBungaMajemukAkhir').innerHTML = 
+                `<strong>Modal Akhir:</strong> Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('hasilBungaMajemukAkhir').style.display = "block";
+        }
+
+        // Hitung Anuitas
+        function hitungAnuitas() {
+            var M = parseFloat(document.getElementById('M_anuitas').value.replace(/\./g, '').replace(/,/g, '.'));
+            var b = parseFloat(document.getElementById('b_anuitas').value) / 100;
+            var periode = parseFloat(document.getElementById('periode_anuitas').value);
+
+            var tabelAnuitas = document.getElementById('tabelAnuitas');
+            tabelAnuitas.innerHTML = '';
+
+            var angsuran = (M * b) / (1 - Math.pow(1 + b, -periode));
+            var sisaPinjaman = M;
+
+            for (var i = 1; i <= periode; i++) {
+                var bunga = sisaPinjaman * b;
+                var angsuranPeriode = Math.min(angsuran, sisaPinjaman + bunga);
+                sisaPinjaman = sisaPinjaman + bunga - angsuranPeriode;
+
+                var row = tabelAnuitas.insertRow();
+                row.insertCell(0).innerText = i;
+                row.insertCell(1).innerText = `Rp ${M.toLocaleString('id-ID')}`;
+                row.insertCell(2).innerText = `Rp ${bunga.toLocaleString('id-ID')}`;
+                row.insertCell(3).innerText = `Rp ${angsuranPeriode.toLocaleString('id-ID')}`;
+                row.insertCell(4).innerText = `Rp ${sisaPinjaman.toLocaleString('id-ID')}`;
+
+                M = sisaPinjaman;
+            }
+
+            document.getElementById('hasilAnuitas').style.display = "block";
+            document.getElementById('hasilAnuitas').innerHTML = "Hasil perhitungan anuitas ditampilkan di tabel di bawah.";
+        }
+
+        // Refresh Page Function
+        function refreshPage() {
+            location.reload();
+        }
+
+        // Animate sections on load
+        window.onload = function() {
+            var sections = document.querySelectorAll('.section');
+            sections.forEach(function(section, index) {
+                setTimeout(function() {
+                    section.classList.add('show');
+                }, index * 300);
+            });
+        };
+    </script>
+</body>
+
+</html>
